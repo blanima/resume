@@ -2,15 +2,15 @@
   "extends": "./tsconfig.base.json",
   "references": [
     {
-      "path": "./packages/core"
+      "path": "packages/core"
     },
     {
-      "path": "./packages/backend"
+      "path": "packages/backend"
     },
     {
-      "path": "./packages/frontend"
+      "path": "packages/frontend"
     }
   ],
-  "include": ["./packages/backend"],
+  "include": ["./packages/backend", "./packages/core"],
   "exclude": ["./packages/frontend"]
 }

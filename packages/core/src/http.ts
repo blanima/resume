@@ -14,3 +14,15 @@ export function makeErrorResponse<E>(error: E): {
     error,
   };
 }
+
+export function makeResponse<T, E>(
+  result: T,
+  error: E
+): { result: T; error: E } {
+  return {
+    result,
+    error,
+  };
+}
+
+// TODO: add error and not found handlers
