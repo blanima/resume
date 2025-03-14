@@ -1,0 +1,14 @@
+{
+  "http": {
+    "port": "HTTP_PORT" 
+  },
+  "database": {
+    "postgres" : {
+      "url": "POSTGRES_URL"
+    },
+    "pool": {
+      "min": "POOL_MIN",
+      "max": "POOL_MAX"
+    }
+  }
+}

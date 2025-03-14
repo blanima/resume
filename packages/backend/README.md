@@ -13,7 +13,7 @@ This project is the backend part of the resume application. It manages the data 
 
 ## Specifications
 
-The backend project uses tRPC within an Express server to handle API requests and manage data. Additionally, it employs basic authentication middleware to ensure that only users with admin privileges can access certain functionalities.
+The backend project uses tRPC to handle API requests and manage data. Additionally, it employs basic authentication middleware to ensure that only users with admin privileges can access certain functionalities.
 
 ## Project Structure
 
