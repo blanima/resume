@@ -14,7 +14,7 @@ export function initExperienceRouter(
         try {
           const experience = await experienceController.getById(id);
           if (experience.isErr()) {
-            return makeErrorResponse(experience.unwrapErr());
+            return makeErrorResponse(experience.unwrapErr().toJson());
           }
           return makeSuccessResponse(experience.unwrap());
         } catch (error: unknown) {

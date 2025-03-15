@@ -7,6 +7,6 @@
     "skipLibCheck": true,
   },
   "references": [{ "path": "../core" }],
-  "include": ["./src"],
+  "include": ["./src", "./migrations"],
   "exclude": []
 }

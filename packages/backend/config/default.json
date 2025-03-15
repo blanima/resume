@@ -1,5 +1,14 @@
 {
   "http": {
     "port": 9000
+  },
+  "database": {
+    "postgres": {
+      "url": "postgres://resume_user:resume_password@localhost:5432/resume",
+      "pool": {
+        "min": 1,
+        "max": 10
+      }
+    }
   }
 }
