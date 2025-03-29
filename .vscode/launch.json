@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // BACKEND
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "Launch-debug-Backend",
+      "command": "npm run dev -w @resume/backend",
+      "presentation": {
+        "hidden": true,
+        "group": "debug",
+        "order": 1
+      }
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "Build-watch-Backend",
+      "command": "npm run build:watch -w @resume/backend",
+      "presentation": {
+        "hidden": true,
+        "group": "debug",
+        "order": 2
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "debug-Backend",
+      "stopAll": true,
+      "configurations": [
+        "Launch-debug-Backend",
+        "Build-watch-Backend"
+      ]
+    }
+  ]
+}

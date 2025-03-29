@@ -3,6 +3,7 @@ import express from "express";
 import { renderTrpcPanel } from "trpc-ui";
 import { AppRouter, createContext, initAppRouter } from "./routers";
 import config from "config";
+import { logger } from "../utils/logger";
 
 const port = Number(config.get("http.port")) ?? 9000;
 
@@ -32,5 +33,5 @@ function initResumeHttpServer() {
 
 const app = initResumeHttpServer();
 app.listen(port, () => {
-  console.log(`Server listening on Port ${port}`);
+  logger.info(`Server listening on Port ${port}`);
 });

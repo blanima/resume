@@ -1,10 +1,16 @@
+import { LanguageCodes } from "../enum";
+
 export interface Experience {
   id: string;
-  title: string;
-  company: string;
+  company_name: string;
   start_date: string;
-  end_date: string;
-  translations: Record<string, string>;
+  end_date?: string | null;
+  translations: {
+    [K in LanguageCodes]?: {
+      title: string;
+      description: string;
+    };
+  };
   created_at?: string;
   updated_at?: string;
 }

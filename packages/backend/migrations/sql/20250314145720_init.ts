@@ -2,16 +2,15 @@ import type { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
   await knex.raw(`
-  create table if not exists experiences 
-  (
-    id				    uuid		  not null	default gen_random_uuid()	primary key,
-    start_date		timestamp	not null,
-    end_date		  timestamp,
-    translations  jsonb not null,
-    created_at		timestamp	not null  default now(),
-    updated_at		timestamp	not null
-  );
-  `);
+CREATE TABLE if not exists experiences 
+(
+  id UUID primary key not null default gen_random_uuid(),
+  translations JSONB,
+  company_name VARCHAR(255),
+  start_date TIMESTAMP default now(),
+  end_date TIMESTAMP
+);
+`);
 }
 
 export async function down(knex: Knex): Promise<void> {

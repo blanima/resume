@@ -3,15 +3,13 @@ import { ExperienceEntity } from "../entities/experience";
 import { type ExperienceInteractor } from "../interactors/experience";
 import { AppError, Result } from "@resume/core/src";
 
-export type ExperienceGetByIdUseCase = UseCase<string, ExperienceEntity>;
+export type ExperienceGetManyUseCase = UseCase<void, ExperienceEntity[]>;
 
-export function ExperienceGetByIdUseCaseFactory(
+export function ExperienceGetManyUseCaseFactory(
   interactor: ExperienceInteractor
-): ExperienceGetByIdUseCase {
-  async function execute(
-    id: string
-  ): Promise<Result<ExperienceEntity, AppError>> {
-    return interactor.getExperienceById(id);
+): ExperienceGetManyUseCase {
+  async function execute(): Promise<Result<ExperienceEntity[], AppError>> {
+    return interactor.getManyExperiences();
   }
   return { execute };
 }

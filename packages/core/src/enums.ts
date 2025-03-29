@@ -1,4 +1,4 @@
-export enum ErrTypes {
+export enum ErrType {
   UNAUTHORIZED = "UNAUTHORIZED",
   FORBIDDEN = "FORBIDDEN",
 }
