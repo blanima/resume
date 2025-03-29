@@ -30,4 +30,3 @@ COPY --from=builder /app/packages/backend/node_modules ./node_modules
 COPY --from=builder /app/packages/backend/dist ./dist
 
 EXPOSE 3000
-CMD [ "npm", "start" ]

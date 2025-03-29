@@ -1,4 +1,7 @@
 {
+  "log": {
+    "level": "info"
+  },
   "http": {
     "port": 9000
   },

@@ -2,6 +2,7 @@ version: "3"
 services:
   postgres:
     image: postgres:17.4
+    container_name: resume-postgres
     environment:
       - POSTGRES_USER=resume_user
       - POSTGRES_PASSWORD=resume_password
@@ -12,6 +13,7 @@ services:
       - 5432
     volumes:
       - ./infrastructure/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgres-data:/var/lib/postgresql/data
     networks:
       - resume
   resume:
@@ -19,6 +21,8 @@ services:
       context: ../../
       dockerfile: packages/backend/backend.Dockerfile
     restart: always
+    environment:
+      - POSTGRES_URL=postgres://resume_user:resume_password@resume-postgres:5432/resume
     ports:
       - "9000:9000"
     expose:
@@ -29,10 +33,6 @@ services:
     networks:
       - resume
 
-      
-
-volumes:
-  postgres-data:
 networks:
   resume:
     driver: bridge
