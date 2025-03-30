@@ -1,6 +1,7 @@
 import { initResumeApp } from "../../resume";
 import { router as initTRPCRouter } from "../trpc";
 import { initExperienceRouter } from "./experience";
+import { initEducationRouter } from "./education";
 import * as trpcExpress from "@trpc/server/adapters/express";
 
 // created for each request
@@ -14,7 +15,8 @@ export function initAppRouter() {
   const controller = initResumeApp();
 
   const appRouter = initTRPCRouter({
-    experience: initExperienceRouter(controller),
+    experience: initExperienceRouter(controller.experience),
+    education: initEducationRouter(controller.education),
   });
   return appRouter;
 }
