@@ -116,7 +116,7 @@ export function ExperienceGatewayFactory(clients: Clients): ExperienceGateway {
   ): Promise<Result<ExperienceEntity[], AppError>> {
     try {
       const experiences = await client
-        .select()
+        .select<Experience[]>()
         .from(TBL_EXPERIENCES)
         .transacting(trx);
 
@@ -142,16 +142,21 @@ export function ExperienceGatewayFactory(clients: Clients): ExperienceGateway {
       const experienceEntry = {
         ...experience,
         created_at: now,
-        updated_at: now,
       };
       const added = await client(TBL_EXPERIENCES)
         .insert(experienceEntry)
         .transacting(trx)
-        .returning("*")
-        .first();
+        .returning<Experience[]>("*")
+        .then((rows) => rows[0]);
 
       if (!added) {
-        return Err(createAppErr({ message: "Failed to add experience" }));
+        return Err(
+          createAppErr({
+            message: "Failed to add experience",
+            type: ErrorType.PERSISTENCE,
+            ctx: { experienceEntry },
+          })
+        );
       }
 
       return Ok(ExperienceEntity.create(added));
@@ -161,6 +166,7 @@ export function ExperienceGatewayFactory(clients: Clients): ExperienceGateway {
           message:
             (error as Error | undefined)?.message ?? "Failed to add experience",
           type: ErrorType.PERSISTENCE,
+          ctx: { experience },
         })
       );
     }
@@ -178,17 +184,24 @@ export function ExperienceGatewayFactory(clients: Clients): ExperienceGateway {
         updated_at: now,
       };
 
-      await client(TBL_EXPERIENCES)
+      const updatedRawExperience = await client(TBL_EXPERIENCES)
         .where({ id })
         .update(updatedExperience)
-        .returning("*");
+        .transacting(trx)
+        .returning<Experience[]>("*")
+        .then((rows) => rows[0]);
 
-      const e = await getExperienceById(id, trx);
-      if (e.isErr()) {
-        return e;
+      if (!updatedRawExperience) {
+        return Err(
+          createAppErr({
+            message: `Experience with id ${id} not found`,
+            type: ErrorType.EXPERIENCE_NOT_FOUND,
+            ctx: { id, experience },
+          })
+        );
       }
 
-      return Ok(e.unwrap());
+      return Ok(ExperienceEntity.create(updatedRawExperience));
     } catch (error) {
       return Err(
         createAppErr({
@@ -196,6 +209,7 @@ export function ExperienceGatewayFactory(clients: Clients): ExperienceGateway {
             (error as Error | undefined)?.message ??
             `Failed to update experience with id ${id}`,
           type: ErrorType.PERSISTENCE,
+          ctx: { id, experience },
         })
       );
     }
@@ -210,13 +224,16 @@ export function ExperienceGatewayFactory(clients: Clients): ExperienceGateway {
         .where({ id })
         .delete()
         .transacting(trx)
-        .returning("*")
-        .first();
+        .returning<Experience[]>("*")
+        .then((rows) => rows[0]);
 
       if (!deletedEntry) {
         return Err(
-          // TODO: add error type
-          createAppErr({ message: `Experience with id ${id} not found` })
+          createAppErr({
+            message: `Experience with id ${id} not found`,
+            type: ErrorType.EXPERIENCE_NOT_FOUND,
+            ctx: { id },
+          })
         );
       }
 
