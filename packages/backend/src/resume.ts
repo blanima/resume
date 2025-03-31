@@ -7,6 +7,9 @@ import { EducationGatewayFactory } from "./application/data/educationGateway";
 import { educationDomain } from "./application/domain/educationDomain";
 import { EducationControllerFactory } from "./application/presenters/controller/education";
 import { EducationDeleteUseCaseFactory } from "./application/domain/useCases/educationDelete";
+import { SkillGatewayFactory } from "./application/data/skillGateway";
+import { skillDomain } from "./application/domain/skillDomain";
+import { SkillControllerFactory } from "./application/presenters/controller/skill";
 
 export function initResumeApp() {
   const clients = getClients();
@@ -58,8 +61,27 @@ export function initResumeApp() {
     },
   });
 
+  // Skill implementation
+  const skillGateway = SkillGatewayFactory(clients);
+  const SkillInteractor = skillDomain.interactors.Skill(skillGateway);
+  const skillGetById = skillDomain.useCases.GetById(SkillInteractor);
+  const skillGetMany = skillDomain.useCases.GetMany(SkillInteractor);
+  const skillAdd = skillDomain.useCases.Add(SkillInteractor);
+  const skillUpdate = skillDomain.useCases.Update(SkillInteractor);
+  const skillDeleteUseCase = skillDomain.useCases.Delete(SkillInteractor);
+  const skillController = SkillControllerFactory({
+    useCases: {
+      getById: skillGetById,
+      getMany: skillGetMany,
+      add: skillAdd,
+      update: skillUpdate,
+      deleteSkill: skillDeleteUseCase,
+    },
+  });
+
   return {
     experience: experienceController,
     education: educationController,
+    skill: skillController,
   };
 }

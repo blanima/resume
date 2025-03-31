@@ -8,8 +8,8 @@ export interface Skill {
     };
   };
   level: number;
-  created_at?: string;
-  updated_at?: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export class SkillEntity {
