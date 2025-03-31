@@ -1,4 +1,4 @@
-import { LanguageCodes } from "../enum";
+import { LanguageCode } from "../enum";
 
 export interface Experience {
   id: string;
@@ -6,7 +6,7 @@ export interface Experience {
   start_date: string;
   end_date?: string | null;
   translations: {
-    [K in LanguageCodes]?: {
+    [K in LanguageCode]?: {
       title: string;
       description: string;
     };

@@ -1,7 +1,7 @@
 /**
  * supported language codes for translations
  */
-export enum LanguageCodes {
+export enum LanguageCode {
   DE = "de",
   EN = "en",
 }

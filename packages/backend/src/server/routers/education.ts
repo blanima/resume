@@ -37,7 +37,7 @@ const EDUCATION_SCHEMA_NO_ID = z.object({
       })
       .optional(),
   }),
-}) as z.ZodType<Omit<Education, "id">>;
+}) satisfies z.ZodType<Omit<Education, "id">>;
 
 export function initEducationRouter(educationController: EducationController) {
   const educationRouter = router({
@@ -94,18 +94,7 @@ export function initEducationRouter(educationController: EducationController) {
       .input(
         z.object({
           id: z.string().nonempty().uuid(),
-          institution: z.string().nonempty(),
-          degree: z.string().optional(),
-          start_date: z.string(),
-          end_date: z.string().optional(),
-          translations: z
-            .record(
-              z.object({
-                title: z.string().nonempty(),
-                description: z.string().nonempty(),
-              })
-            )
-            .optional(),
+          ...EDUCATION_SCHEMA_NO_ID.shape,
         })
       )
       .mutation(async ({ input: education }) => {

@@ -1,3 +1,5 @@
+import { LanguageCode } from "../enum";
+
 export interface Education {
   id: string;
   institution: string;
@@ -5,7 +7,7 @@ export interface Education {
   start_date: string;
   end_date?: string | null;
   translations: {
-    [key: string]: {
+    [K in LanguageCode]?: {
       title: string;
       description: string;
     };
