@@ -12,16 +12,26 @@ export interface EducationInteractor {
   commitTrx(trx: Transaction): Promise<void>;
   rollbackTrx(trx: Transaction): Promise<void>;
   // Gateway operations
-  getEducationById(id: string): Promise<Result<EducationEntity, AppError>>;
-  getManyEducations(): Promise<Result<EducationEntity[], AppError>>;
+  getEducationById(
+    id: string,
+    trx: Transaction
+  ): Promise<Result<EducationEntity, AppError>>;
+  getManyEducations(
+    trx: Transaction
+  ): Promise<Result<EducationEntity[], AppError>>;
   addEducation(
-    education: Omit<Education, "id" | "created_at" | "updated_at">
+    education: Omit<Education, "id" | "created_at" | "updated_at">,
+    trx: Transaction
   ): Promise<Result<EducationEntity, AppError>>;
   updateEducation(
     id: string,
-    education: Partial<Education>
+    education: Partial<Education>,
+    trx: Transaction
   ): Promise<Result<EducationEntity, AppError>>;
-  deleteEducation(id: string): Promise<Result<EducationEntity, AppError>>;
+  deleteEducation(
+    id: string,
+    trx: Transaction
+  ): Promise<Result<EducationEntity, AppError>>;
 }
 
 export function EducationInteractorFactory(
@@ -32,70 +42,50 @@ export function EducationInteractorFactory(
   }
 
   async function commitTrx(trx: Transaction): Promise<void> {
-    return gateway.commitTrx(trx);
+    await gateway.commitTrx(trx);
   }
 
   async function rollbackTrx(trx: Transaction): Promise<void> {
-    return gateway.rollbackTrx(trx);
+    await gateway.rollbackTrx(trx);
   }
 
   async function getEducationById(
-    id: string
+    id: string,
+    trx: Transaction
   ): Promise<Result<EducationEntity, AppError>> {
-    const trx = await beginTrx();
-
     const result = await gateway.getEducationById(id, trx);
-
-    result.isErr() ? await rollbackTrx(trx) : await commitTrx(trx);
-
     return result;
   }
 
-  async function getManyEducations(): Promise<
-    Result<EducationEntity[], AppError>
-  > {
-    const trx = await beginTrx();
-
+  async function getManyEducations(
+    trx: Transaction
+  ): Promise<Result<EducationEntity[], AppError>> {
     const result = await gateway.getManyEducations(trx);
-
-    result.isErr() ? await rollbackTrx(trx) : await commitTrx(trx);
-
     return result;
   }
 
   async function addEducation(
-    education: Omit<Education, "id" | "created_at" | "updated_at">
+    education: Omit<Education, "id" | "created_at" | "updated_at">,
+    trx: Transaction
   ): Promise<Result<EducationEntity, AppError>> {
-    const trx = await beginTrx();
-
     const result = await gateway.addEducation(education, trx);
-
-    result.isErr() ? await rollbackTrx(trx) : await commitTrx(trx);
     return result;
   }
 
   async function updateEducation(
     id: string,
-    education: Partial<Education>
+    education: Partial<Education>,
+    trx: Transaction
   ): Promise<Result<EducationEntity, AppError>> {
-    const trx = await beginTrx();
-
     const result = await gateway.updateEducation(id, education, trx);
-
-    result.isErr() ? await rollbackTrx(trx) : await commitTrx(trx);
-
     return result;
   }
 
   async function deleteEducation(
-    id: string
+    id: string,
+    trx: Transaction
   ): Promise<Result<EducationEntity, AppError>> {
-    const trx = await beginTrx();
-
     const result = await gateway.deleteEducation(id, trx);
-
-    result.isErr() ? await rollbackTrx(trx) : await commitTrx(trx);
-
     return result;
   }
 

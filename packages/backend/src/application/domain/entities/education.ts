@@ -3,7 +3,7 @@ import { LanguageCode } from "../enum";
 export interface Education {
   id: string;
   institution: string;
-  degree?: string;
+  degree?: string | null;
   start_date: string;
   end_date?: string | null;
   translations: {
@@ -12,8 +12,8 @@ export interface Education {
       description: string;
     };
   };
-  created_at?: string;
-  updated_at?: string;
+  created_at: string;
+  updated_at?: string | null;
 }
 
 export class EducationEntity {

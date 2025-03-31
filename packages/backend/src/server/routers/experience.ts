@@ -33,7 +33,7 @@ const EXPERIENCE_SCHEMA_NO_ID = z.object({
   company_name: z.string().nonempty(),
   start_date: z.string(),
   end_date: z.string().optional(),
-}) satisfies z.ZodType<Omit<Experience, "id">>;
+}) satisfies z.ZodType<Omit<Experience, "id" | "created_at" | "updated_at">>;
 
 export function initExperienceRouter(
   experienceController: ExperienceController

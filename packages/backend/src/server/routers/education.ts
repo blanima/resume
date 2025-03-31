@@ -37,7 +37,7 @@ const EDUCATION_SCHEMA_NO_ID = z.object({
       })
       .optional(),
   }),
-}) satisfies z.ZodType<Omit<Education, "id">>;
+}) satisfies z.ZodType<Omit<Education, "id" | "created_at" | "updated_at">>;
 
 export function initEducationRouter(educationController: EducationController) {
   const educationRouter = router({

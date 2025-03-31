@@ -8,16 +8,27 @@ export interface ExperienceInteractor {
   beginTrx(): Promise<Transaction>;
   commitTrx(trx: Transaction): Promise<void>;
   rollbackTrx(trx: Transaction): Promise<void>;
-  getExperienceById(id: string): Promise<Result<ExperienceEntity, AppError>>;
-  getManyExperiences(): Promise<Result<ExperienceEntity[], AppError>>;
+  getExperienceById(
+    id: string,
+    trx: Transaction
+  ): Promise<Result<ExperienceEntity, AppError>>;
+  getManyExperiences(
+    trx: Transaction
+  ): Promise<Result<ExperienceEntity[], AppError>>;
   addExperience(
-    experience: Omit<Experience, "id" | "created_at" | "updated_at">
+    experience: Omit<Experience, "id" | "created_at" | "updated_at">,
+    trx: Transaction
   ): Promise<Result<ExperienceEntity, AppError>>;
   updateExperience(
     id: string,
-    experience: Partial<Experience>
+    experience: Partial<Experience>,
+    trx: Transaction
   ): Promise<Result<ExperienceEntity, AppError>>;
-  deleteExperience(id: string): Promise<Result<ExperienceEntity, AppError>>;
+  deleteExperience(
+    id: string,
+    trx: Transaction
+  ): Promise<Result<ExperienceEntity, AppError>>;
+  exists(id: string, trx: Transaction): Promise<Result<boolean, AppError>>;
 }
 
 export function ExperienceInteractorFactory(
@@ -28,89 +39,53 @@ export function ExperienceInteractorFactory(
   }
 
   async function commitTrx(trx: Transaction): Promise<void> {
-    return await gateway.commitTrx(trx);
+    await gateway.commitTrx(trx);
   }
 
   async function rollbackTrx(trx: Transaction): Promise<void> {
-    return await gateway.rollbackTrx(trx);
+    await gateway.rollbackTrx(trx);
   }
 
   async function getExperienceById(
-    id: string
+    id: string,
+    trx: Transaction
   ): Promise<Result<ExperienceEntity, AppError>> {
-    const trx = await beginTrx();
-    const experience = await gateway.getExperienceById(id, trx);
-
-    if (experience.isErr()) {
-      await rollbackTrx(trx);
-    } else {
-      await commitTrx(trx);
-    }
-
-    return experience;
+    return gateway.getExperienceById(id, trx);
   }
 
-  async function getManyExperiences(): Promise<
-    Result<ExperienceEntity[], AppError>
-  > {
-    const trx = await beginTrx();
-    const experiences = await gateway.getManyExperiences(trx);
-
-    if (experiences.isErr()) {
-      await rollbackTrx(trx);
-    } else {
-      await commitTrx(trx);
-    }
-
-    return experiences;
+  async function getManyExperiences(
+    trx: Transaction
+  ): Promise<Result<ExperienceEntity[], AppError>> {
+    return gateway.getManyExperiences(trx);
   }
 
   async function addExperience(
-    experience: Omit<Experience, "id" | "created_at" | "updated_at">
+    experience: Omit<Experience, "id" | "created_at" | "updated_at">,
+    trx: Transaction
   ): Promise<Result<ExperienceEntity, AppError>> {
-    const trx = await beginTrx();
-    const addedExperience = await gateway.addExperience(experience, trx);
-
-    if (addedExperience.isErr()) {
-      await rollbackTrx(trx);
-    } else {
-      await commitTrx(trx);
-    }
-
-    return addedExperience;
+    return gateway.addExperience(experience, trx);
   }
 
   async function updateExperience(
     id: string,
-    experience: Partial<Experience>
+    experience: Partial<Experience>,
+    trx: Transaction
   ): Promise<Result<ExperienceEntity, AppError>> {
-    const trx = await beginTrx();
-    const updatedExperience = await gateway.updateExperience(
-      id,
-      experience,
-      trx
-    );
-
-    if (updatedExperience.isErr()) {
-      await rollbackTrx(trx);
-    } else {
-      await commitTrx(trx);
-    }
-
-    return updatedExperience;
+    return gateway.updateExperience(id, experience, trx);
   }
 
   async function deleteExperience(
-    id: string
+    id: string,
+    trx: Transaction
   ): Promise<Result<ExperienceEntity, AppError>> {
-    const trx = await beginTrx();
-    const result = await gateway.deleteExperience(id, trx);
-    if (result.isErr()) {
-      await rollbackTrx(trx);
-    } else {
-      await commitTrx(trx);
-    }
-    return result;
+    return gateway.deleteExperience(id, trx);
+  }
+
+  async function exists(
+    id: string,
+    trx: Transaction
+  ): Promise<Result<boolean, AppError>> {
+    return gateway.exists(id, trx);
   }
 
   return {
@@ -122,5 +97,6 @@ export function ExperienceInteractorFactory(
     addExperience,
     updateExperience,
     deleteExperience,
+    exists,
   };
 }
