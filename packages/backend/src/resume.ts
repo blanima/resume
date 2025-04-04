@@ -69,6 +69,31 @@ export function initResumeApp() {
   const skillAdd = skillDomain.useCases.Add(SkillInteractor);
   const skillUpdate = skillDomain.useCases.Update(SkillInteractor);
   const skillDeleteUseCase = skillDomain.useCases.Delete(SkillInteractor);
+  const SkillLinkExperienceUseCase = skillDomain.useCases.LinkExperience(
+    SkillInteractor,
+    experienceInteractor
+  );
+  const SkillLinkEducationUseCase = skillDomain.useCases.LinkEducation(
+    SkillInteractor,
+    educationInteractor
+  );
+  const SkillUnlinkExperienceUseCase = skillDomain.useCases.UnlinkExperience(
+    SkillInteractor,
+    experienceInteractor
+  );
+  const SkillUnlinkEducationUseCase = skillDomain.useCases.UnlinkEducation(
+    SkillInteractor,
+    educationInteractor
+  );
+  const skillGetLinkedEducations =
+    skillDomain.useCases.GetLinkedEducations(SkillInteractor);
+  const skillGetLinkedExperiences =
+    skillDomain.useCases.GetLinkedExperiences(SkillInteractor);
+  const skillGetLinkedSkillsByExperienceId =
+    skillDomain.useCases.GetLinkedSkillsByExperienceId(SkillInteractor);
+  const skillGetLinkedSkillsByEducationId =
+    skillDomain.useCases.GetLinkedSkillsByEducationId(SkillInteractor);
+
   const skillController = SkillControllerFactory({
     useCases: {
       getById: skillGetById,
@@ -76,6 +101,14 @@ export function initResumeApp() {
       add: skillAdd,
       update: skillUpdate,
       deleteSkill: skillDeleteUseCase,
+      linkToExperience: SkillLinkExperienceUseCase,
+      linkToEducation: SkillLinkEducationUseCase,
+      unlinkFromExperience: SkillUnlinkExperienceUseCase,
+      unlinkFromEducation: SkillUnlinkEducationUseCase,
+      getLinkedEducations: skillGetLinkedEducations,
+      getLinkedExperiences: skillGetLinkedExperiences,
+      getLinkedSkillsByExperienceId: skillGetLinkedSkillsByExperienceId,
+      getLinkedSkillsByEducationId: skillGetLinkedSkillsByEducationId,
     },
   });
 

@@ -29,8 +29,9 @@ export function ExperienceGetManyUseCaseFactory(
         return Err(
           createAppErr({
             message:
-              (error as Error).message ?? "Failed to get many experiences",
+              (error as Error).message || "Failed to get many experiences",
             type: ErrorType.PERSISTENCE,
+            ctx: { originalError: error },
           })
         );
       }

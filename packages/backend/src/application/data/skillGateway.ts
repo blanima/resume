@@ -1,4 +1,9 @@
-import { Skill, SkillEntity } from "../domain/entities/skill";
+import {
+  Skill,
+  SkillEducationLink,
+  SkillEntity,
+  SkillExperienceLink,
+} from "../domain/entities/skill";
 import { type Transaction } from "./types";
 import { Ok, Err, Result, type AppError, createAppErr } from "@resume/core/src";
 import { Clients } from "./clients";
@@ -31,22 +36,38 @@ export interface SkillGateway {
     skillId: string,
     experienceId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>>;
+  ): Promise<Result<SkillExperienceLink, AppError>>;
   unlinkSkillFromExperience(
     skillId: string,
     experienceId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>>;
+  ): Promise<Result<SkillExperienceLink, AppError>>;
   linkSkillToEducation(
     skillId: string,
     educationId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>>;
+  ): Promise<Result<SkillEducationLink, AppError>>;
   unlinkSkillFromEducation(
     skillId: string,
     educationId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>>;
+  ): Promise<Result<SkillEducationLink, AppError>>;
+  getLinkedExperiences(
+    skillId: string,
+    trx: Transaction
+  ): Promise<Result<SkillExperienceLink[], AppError>>;
+  getLinkedEducations(
+    skillId: string,
+    trx: Transaction
+  ): Promise<Result<SkillEducationLink[], AppError>>;
+  getLinkedSkillsByExperienceId(
+    experienceId: string,
+    trx: Transaction
+  ): Promise<Result<SkillExperienceLink[], AppError>>;
+  getLinkedSkillsByEducationId(
+    educationId: string,
+    trx: Transaction
+  ): Promise<Result<SkillEducationLink[], AppError>>;
 }
 
 const TBL_SKILLS = "skills";
@@ -265,15 +286,28 @@ export function SkillGatewayFactory(clients: Clients): SkillGateway {
     skillId: string,
     experienceId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>> {
+  ): Promise<Result<SkillExperienceLink, AppError>> {
     try {
-      await client("skills_experiences")
+      const skillExperienceLink = await client("skills_experiences")
         .insert({
           skill_id: skillId,
           experience_id: experienceId,
         })
-        .transacting(trx);
-      return Ok(undefined);
+        .transacting(trx)
+        .returning<SkillExperienceLink[]>("*")
+        .then((rows) => rows[0]);
+
+      if (!skillExperienceLink) {
+        return Err(
+          createAppErr({
+            message: "Failed to link skill to experience",
+            type: ErrorType.PERSISTENCE,
+            ctx: { skillId, experienceId },
+          })
+        );
+      }
+
+      return Ok(skillExperienceLink);
     } catch (error) {
       return Err(
         createAppErr({
@@ -291,13 +325,26 @@ export function SkillGatewayFactory(clients: Clients): SkillGateway {
     skillId: string,
     experienceId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>> {
+  ): Promise<Result<SkillExperienceLink, AppError>> {
     try {
-      await client("skills_experiences")
+      const deletedSkillExperienceLink = await client("skills_experiences")
         .where({ skill_id: skillId, experience_id: experienceId })
         .delete()
-        .transacting(trx);
-      return Ok(undefined);
+        .transacting(trx)
+        .returning<SkillExperienceLink[]>("*")
+        .then((rows) => rows[0]);
+
+      if (!deletedSkillExperienceLink) {
+        return Err(
+          createAppErr({
+            message: "Skill-link not found",
+            type: ErrorType.SKILL_LINK_NOT_FOUND,
+            ctx: { skillId, experienceId, kind: "experience" },
+          })
+        );
+      }
+
+      return Ok(deletedSkillExperienceLink);
     } catch (error) {
       return Err(
         createAppErr({
@@ -315,12 +362,25 @@ export function SkillGatewayFactory(clients: Clients): SkillGateway {
     skillId: string,
     educationId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>> {
+  ): Promise<Result<SkillEducationLink, AppError>> {
     try {
-      await client("skills_educations")
+      const skillEducationLink = await client("skills_educations")
         .insert({ skill_id: skillId, education_id: educationId })
-        .transacting(trx);
-      return Ok(undefined);
+        .transacting(trx)
+        .returning<SkillEducationLink[]>("*")
+        .then((rows) => rows[0]);
+
+      if (!skillEducationLink) {
+        return Err(
+          createAppErr({
+            message: "Failed to link skill to education",
+            type: ErrorType.PERSISTENCE,
+            ctx: { skillId, educationId },
+          })
+        );
+      }
+
+      return Ok(skillEducationLink);
     } catch (error) {
       return Err(
         createAppErr({
@@ -338,13 +398,26 @@ export function SkillGatewayFactory(clients: Clients): SkillGateway {
     skillId: string,
     educationId: string,
     trx: Transaction
-  ): Promise<Result<void, AppError>> {
+  ): Promise<Result<SkillEducationLink, AppError>> {
     try {
-      await client("skills_educations")
+      const removedSkillEducationLink = await client("skills_educations")
         .where({ skill_id: skillId, education_id: educationId })
         .delete()
-        .transacting(trx);
-      return Ok(undefined);
+        .transacting(trx)
+        .returning("*")
+        .then((rows) => rows[0]);
+
+      if (!removedSkillEducationLink) {
+        return Err(
+          createAppErr({
+            message: "Skill-link not found",
+            type: ErrorType.SKILL_LINK_NOT_FOUND,
+            ctx: { skillId, educationId, kind: "education" },
+          })
+        );
+      }
+
+      return Ok(removedSkillEducationLink);
     } catch (error) {
       return Err(
         createAppErr({
@@ -353,6 +426,101 @@ export function SkillGatewayFactory(clients: Clients): SkillGateway {
             "Failed to unlink skill from education",
           type: ErrorType.PERSISTENCE,
           ctx: { skillId, educationId },
+        })
+      );
+    }
+  }
+
+  async function getLinkedEducations(
+    skillId: string,
+    trx: Transaction
+  ): Promise<Result<SkillEducationLink[], AppError>> {
+    try {
+      const links = await client
+        .select()
+        .from("skills_educations")
+        .where({ skill_id: skillId })
+        .transacting(trx);
+      return Ok(links);
+    } catch (error) {
+      return Err(
+        createAppErr({
+          message:
+            (error as Error)?.message ?? "Failed to get linked educations",
+          type: ErrorType.PERSISTENCE,
+          ctx: { skillId },
+        })
+      );
+    }
+  }
+
+  async function getLinkedExperiences(
+    skillId: string,
+    trx: Transaction
+  ): Promise<Result<SkillExperienceLink[], AppError>> {
+    try {
+      const links = await client
+        .select()
+        .from("skills_experiences")
+        .where({ skill_id: skillId })
+        .transacting(trx);
+
+      return Ok(links);
+    } catch (error) {
+      return Err(
+        createAppErr({
+          message:
+            (error as Error)?.message ?? "Failed to get linked experiences",
+          type: ErrorType.PERSISTENCE,
+          ctx: { skillId },
+        })
+      );
+    }
+  }
+
+  async function getLinkedSkillsByExperienceId(
+    experienceId: string,
+    trx: Transaction
+  ): Promise<Result<SkillExperienceLink[], AppError>> {
+    try {
+      const links = await client
+        .select()
+        .from("skills_experiences")
+        .where({ experience_id: experienceId })
+        .transacting(trx);
+      return Ok(links);
+    } catch (error) {
+      return Err(
+        createAppErr({
+          message:
+            (error as Error)?.message ??
+            "Failed to get linked skills by experience id",
+          type: ErrorType.PERSISTENCE,
+          ctx: { experienceId },
+        })
+      );
+    }
+  }
+
+  async function getLinkedSkillsByEducationId(
+    educationId: string,
+    trx: Transaction
+  ): Promise<Result<SkillEducationLink[], AppError>> {
+    try {
+      const links = await client
+        .select()
+        .from("skills_educations")
+        .where({ education_id: educationId })
+        .transacting(trx);
+      return Ok(links);
+    } catch (error) {
+      return Err(
+        createAppErr({
+          message:
+            (error as Error)?.message ??
+            "Failed to get linked skills by education id",
+          type: ErrorType.PERSISTENCE,
+          ctx: { educationId },
         })
       );
     }
@@ -372,5 +540,9 @@ export function SkillGatewayFactory(clients: Clients): SkillGateway {
     unlinkSkillFromExperience,
     linkSkillToEducation,
     unlinkSkillFromEducation,
+    getLinkedEducations,
+    getLinkedExperiences,
+    getLinkedSkillsByExperienceId,
+    getLinkedSkillsByEducationId,
   };
 }

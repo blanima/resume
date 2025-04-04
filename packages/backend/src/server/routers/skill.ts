@@ -20,11 +20,13 @@ const SKILL_SCHEMA_NO_ID = z.object({
   level: z.number(),
 }) satisfies z.ZodType<Omit<Parameters<SkillController["add"]>[0], never>>;
 
+const UUID_SCHEMA = z.string().nonempty().uuid();
+
 export function initSkillRouter(skillController: SkillController) {
   const skillRouter = router({
     get: publicProcedure
       .meta({ description: "Gets a skill by id" })
-      .input(z.string().nonempty().uuid())
+      .input(UUID_SCHEMA)
       .query(async ({ input: id }) => {
         try {
           const skill = await skillController.getById(id);
@@ -70,7 +72,7 @@ export function initSkillRouter(skillController: SkillController) {
       .meta({ description: "Updates a skill" })
       .input(
         z.object({
-          id: z.string().nonempty().uuid(),
+          id: UUID_SCHEMA,
           ...SKILL_SCHEMA_NO_ID.shape,
         })
       )
@@ -88,13 +90,165 @@ export function initSkillRouter(skillController: SkillController) {
       }),
     delete: publicProcedure
       .meta({ description: "Deletes a skill" })
-      .input(z.string().nonempty().uuid())
+      .input(UUID_SCHEMA)
       .mutation(async ({ input: id }) => {
         try {
           const result = await skillController.deleteSkill(id);
           if (result.isErr()) {
             return makeErrorResponse(result.unwrapErr().toJson());
           }
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    linkToExperience: publicProcedure
+      .meta({ description: "Links a skill to an experience" })
+      .input(
+        z.object({
+          skillId: UUID_SCHEMA,
+          experienceId: UUID_SCHEMA,
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const result = await skillController.linkToExperience(
+            input.skillId,
+            input.experienceId
+          );
+          if (result.isErr()) {
+            return makeErrorResponse(result.unwrapErr().toJson());
+          }
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    linkToEducation: publicProcedure
+      .meta({ description: "Links a skill to an education" })
+      .input(
+        z.object({
+          skillId: UUID_SCHEMA,
+          educationId: UUID_SCHEMA,
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const result = await skillController.linkToEducation(
+            input.skillId,
+            input.educationId
+          );
+          if (result.isErr()) {
+            return makeErrorResponse(result.unwrapErr().toJson());
+          }
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    unlinkFromExperience: publicProcedure
+      .meta({ description: "Unlinks a skill from an experience" })
+      .input(
+        z.object({
+          skillId: UUID_SCHEMA,
+          experienceId: UUID_SCHEMA,
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const result = await skillController.unlinkFromExperience(
+            input.skillId,
+            input.experienceId
+          );
+          if (result.isErr()) {
+            return makeErrorResponse(result.unwrapErr().toJson());
+          }
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    unlinkFromEducation: publicProcedure
+      .meta({ description: "Unlinks a skill from an education" })
+      .input(
+        z.object({
+          skillId: UUID_SCHEMA,
+          educationId: UUID_SCHEMA,
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const result = await skillController.unlinkFromEducation(
+            input.skillId,
+            input.educationId
+          );
+          if (result.isErr()) {
+            return makeErrorResponse(result.unwrapErr().toJson());
+          }
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    getLinkedEducations: publicProcedure
+      .meta({ description: "Gets linked educations for a skill" })
+      .input(UUID_SCHEMA)
+      .query(async ({ input: skillId }) => {
+        try {
+          const result = await skillController.getLinkedEducations(skillId);
+          if (result.isErr())
+            return makeErrorResponse(result.unwrapErr().toJson());
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    getLinkedExperiences: publicProcedure
+      .meta({ description: "Gets linked experiences for a skill" })
+      .input(UUID_SCHEMA)
+      .query(async ({ input: skillId }) => {
+        try {
+          const result = await skillController.getLinkedExperiences(skillId);
+          if (result.isErr())
+            return makeErrorResponse(result.unwrapErr().toJson());
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    getLinkedSkillsByExperienceId: publicProcedure
+      .meta({ description: "Gets skills linked to an experience" })
+      .input(UUID_SCHEMA)
+      .query(async ({ input: experienceId }) => {
+        try {
+          const result = await skillController.getLinkedSkillsByExperienceId(
+            experienceId
+          );
+          if (result.isErr())
+            return makeErrorResponse(result.unwrapErr().toJson());
+          return makeSuccessResponse(result.unwrap());
+        } catch (error: unknown) {
+          logger.error(error, "Skill controller failed to handle request");
+          return error;
+        }
+      }),
+    getLinkedSkillsByEducationId: publicProcedure
+      .meta({ description: "Gets skills linked to an education" })
+      .input(UUID_SCHEMA)
+      .query(async ({ input: educationId }) => {
+        try {
+          const result = await skillController.getLinkedSkillsByEducationId(
+            educationId
+          );
+          if (result.isErr())
+            return makeErrorResponse(result.unwrapErr().toJson());
           return makeSuccessResponse(result.unwrap());
         } catch (error: unknown) {
           logger.error(error, "Skill controller failed to handle request");

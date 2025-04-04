@@ -12,6 +12,7 @@ export interface EducationInteractor {
   commitTrx(trx: Transaction): Promise<void>;
   rollbackTrx(trx: Transaction): Promise<void>;
   // Gateway operations
+  exists(id: string, trx: Transaction): Promise<Result<boolean, AppError>>;
   getEducationById(
     id: string,
     trx: Transaction
@@ -47,6 +48,14 @@ export function EducationInteractorFactory(
 
   async function rollbackTrx(trx: Transaction): Promise<void> {
     await gateway.rollbackTrx(trx);
+  }
+
+  async function exists(
+    id: string,
+    trx: Transaction
+  ): Promise<Result<boolean, AppError>> {
+    const result = await gateway.exists(id, trx);
+    return result;
   }
 
   async function getEducationById(
@@ -93,6 +102,7 @@ export function EducationInteractorFactory(
     beginTrx,
     commitTrx,
     rollbackTrx,
+    exists,
     getEducationById,
     getManyEducations,
     addEducation,
