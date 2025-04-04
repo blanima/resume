@@ -5,7 +5,6 @@ export interface AppError extends Error {
   ctx?: any;
   toJson(): {
     message: string;
-    stack?: string;
     type?: string;
     ctx?: any;
   };
@@ -29,7 +28,6 @@ export function createAppErr(args: {
     return {
       message: err.message,
       ...(err.ctx !== undefined && { ctx: this.ctx }),
-      ...(err.stack !== undefined && { stack: this.stack }),
       ...(err.type !== undefined && { type: this.type }),
     };
   };
