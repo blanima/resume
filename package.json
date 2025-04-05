@@ -14,5 +14,8 @@
     "packages/backend",
     "packages/frontend",
     "packages/core"
-  ]
+  ],
+  "dependencies": {
+    "next-intl": "^4.0.2"
+  }
 }
