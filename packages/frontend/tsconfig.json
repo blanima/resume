@@ -1,5 +1,7 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": "./",
     "composite": true,
     "target": "ES2017",
     "lib": [
@@ -26,7 +28,7 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
     },
     "noEmit": true
   },

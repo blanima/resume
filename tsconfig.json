@@ -7,7 +7,9 @@
     {
       "path": "packages/backend"
     },
+    {
+      "path": "packages/frontend"
+    },
   ],
-  "include": ["./packages/backend", "./packages/core"],
-  "exclude": ["./packages/frontend"]
+  "include": ["./packages/backend", "./packages/core", "./packages/frontend"],
 }

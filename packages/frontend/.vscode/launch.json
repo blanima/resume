@@ -1,0 +1,53 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "nvm use && npm run dev",
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": {
+        "hidden": true,
+        "group": "prepare",
+        "order": 1
+      }
+    },
+    {
+      "name": "client-side",
+      "type": "chrome",
+      "request": "launch",
+      "userDataDir": false,
+      "urlFilter": "http://localhost:3000/*",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "resolveSourceMapLocations": ["!**/node_modules/**", "${workspaceFolder}"],
+      "runtimeArgs": [
+        "http://localhost:3000",
+        "--remote-debugging-port=9222"
+      ],
+      "preLaunchTask": "sleep-delay",
+      "presentation": {
+        "hidden": true,
+        "group": "prepare",
+        "order": 2
+      }
+    },
+  ],
+  "compounds": [
+    {
+      "name": "debug",
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "debug",
+        "order": 1
+      },
+      "configurations": [
+        "server-side", 
+        "client-side"
+      ]
+    },
+  ]
+}
